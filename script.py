@@ -70,7 +70,6 @@ dht_sensor = adafruit_dht.DHT11(board.D23, use_pulseio=False)
 
 # Declaracao de variaveis globais
 tempDesejada = 10
-tempDesejada_lock = threading.Lock()
 cooler_state = 0
 last_cooler_state = 0
 
@@ -133,38 +132,30 @@ def read_and_display():
         print("Falha ao ler os dados do sensor...")
     return temperature, humidity
 
-def display_digit():
+def display_digit(temp_param):
+    result = temp_param / 10
+    rest = temp_param % 10
+    segments_first_digit = segment_map[str(int(result))]
+    segments_second_digit = segment_map[str(int(rest))]
+    
+    for i in range(len(digit1_pins)):
+        GPIO.output(digit1_pins[i], segments_first_digit[i])
+    for i in range(len(digit2_pins)):
+        GPIO.output(digit2_pins[i], segments_second_digit[i])
+        
+def altera():
     global tempDesejada
     while True:
-        with tempDesejada_lock:
-            result = tempDesejada / 10
-            rest = tempDesejada % 10
-        segments_first_digit = segment_map[str(int(result))]
-        segments_second_digit = segment_map[str(int(rest))]
-        
-        for i in range(len(digit1_pins)):
-            GPIO.output(digit1_pins[i], segments_first_digit[i])
-        for i in range(len(digit2_pins)):
-            GPIO.output(digit2_pins[i], segments_second_digit[i])
-    time.sleep(1)
-        
-def incrementa():
-    global tempDesejada
-    while True:
+        display_digit(tempDesejada)
         if GPIO.input(increment_pin) == GPIO.HIGH:
-            with tempDesejada_lock:
-                tempDesejada += 1
-                send_data(CONFIG_TEMPERATURE_LABEL, tempDesejada)
-            time.sleep(0.5)
-            
-def decrementa():
-    global tempDesejada
-    while True:
-        if GPIO.input(decrement_pin) == GPIO.HIGH:
-            with tempDesejada_lock:
-                tempDesejada -= 1
-                send_data(CONFIG_TEMPERATURE_LABEL, tempDesejada)
-            time.sleep(0.5)
+            tempDesejada += 1
+            display_digit(tempDesejada)
+            send_data(CONFIG_TEMPERATURE_LABEL, tempDesejada)
+        elif GPIO.input(decrement_pin) == GPIO.HIGH:
+            tempDesejada -= 1
+            display_digit(tempDesejada)
+            send_data(CONFIG_TEMPERATURE_LABEL, tempDesejada)
+        time.sleep(1)
             
 def coolerStatus():
     global cooler_state, last_cooler_state
@@ -181,13 +172,9 @@ def coolerStatus():
         time.sleep(3)
         
 # Inicializando as threads
-thread_inc = threading.Thread(target = incrementa)
-thread_dec = threading.Thread(target = decrementa)
-thread_display = threading.Thread(target = display_digit)
+thread_botao = threading.Thread(target = altera)
 thread_ir = threading.Thread(target = coolerStatus)
-thread_inc.start()
-thread_dec.start()
-thread_display.start()
+thread_botao.start()
 thread_ir.start()
         
 # Inicializando as variaveis para o sistema
@@ -199,13 +186,11 @@ try:
     
     time.sleep(1)
     while True:
-        with tempDesejada_lock:
-            tempDesejada = get_data(CONFIG_TEMPERATURE_LABEL)
+        tempDesejada = get_data(CONFIG_TEMPERATURE_LABEL)
         print(f"Temperatura desejada: {tempDesejada}")
         
         temp, hum = read_and_display()
         
-        print(f"{temp} {hum} {cooler_state}")
         if(temp is not None and hum is not None):
             if(temp > tempDesejada + 2 and count >= 15 and cooler_state == 1):
                 GPIO.output(rele_pin, GPIO.HIGH)
