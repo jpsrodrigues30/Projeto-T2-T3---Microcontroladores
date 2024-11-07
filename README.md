@@ -1,6 +1,6 @@
 # Projeto-T2-T3---Microcontroladores
 
-Projeto T1 de Microcontrolodores
+Projeto T2 e T3 de Microcontrolodores
 
 Nome: João Paulo de Souza Rodrigues - 21.01809-0
 
