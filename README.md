@@ -15,6 +15,8 @@ Nome: Estevan Delazari Feher - 21.00586-9
 ![Imagem do WhatsApp de 2024-11-06 à(s) 16 36 23_3d3cbc9f](https://github.com/user-attachments/assets/b3ef1780-7bfd-46d5-b836-6f2d4bcabc91)
 ![Imagem do WhatsApp de 2024-11-06 à(s) 16 36 23_52c1a2a7](https://github.com/user-attachments/assets/6a84295e-67de-42cb-bfc8-d68b8b4fb4d9)
 
+Vídeos: 
+
 [Video - T2.zip](https://github.com/user-attachments/files/17654437/Video.-.T2.zip)
 
 [Video - T3.zip](https://github.com/user-attachments/files/17654448/Video.-.T3.zip)
